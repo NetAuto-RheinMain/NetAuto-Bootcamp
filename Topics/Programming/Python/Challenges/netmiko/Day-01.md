@@ -21,9 +21,9 @@ name: netmiko_lab_day1
 
 topology:
     nodes:
-    - name: ceos1
-        kind: ceos
-        image: ceosimage:4.28.1F
+        ceos1
+            kind: arosta_ceos
+            image: ceos:4.28.1F
 ```
 
 3.  **Deploy the Lab:** Run the following command from your terminal.

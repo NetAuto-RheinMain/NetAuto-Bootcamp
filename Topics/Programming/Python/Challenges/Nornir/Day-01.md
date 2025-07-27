@@ -19,9 +19,9 @@ Get Containerlab and your cEOS image ready, and deploy a basic topology.
 name: single-ceos-lab
 topology:
     nodes:
-    ceos1:
-        kind: arista_ceos
-        image: ceos:4.28.0F # Replace with your downloaded cEOS image tag
+        ceos1:
+            kind: arista_ceos
+            image: ceos:4.28.0F # Replace with your downloaded cEOS image tag
 ```
 
 2.  **Deploy the lab:**

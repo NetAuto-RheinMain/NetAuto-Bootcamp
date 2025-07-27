@@ -19,12 +19,12 @@ Understand Nornir's inventory system and how to represent your network devices.
 name: two-ceos-lab
 topology:
     nodes:
-    ceos1:
-        kind: arista_ceos
-        image: ceos:4.28.0F
-    ceos2:
-        kind: arista_ceos
-        image: ceos:4.28.0F
+        ceos1:
+            kind: arista_ceos
+            image: ceos:4.28.0F
+        ceos2:
+            kind: arista_ceos
+            image: ceos:4.28.0F
 ```
 
 Deploy this lab: `sudo containerlab deploy --topo clab_2_ceos_topology.yaml`

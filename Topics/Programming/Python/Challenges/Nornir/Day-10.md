@@ -25,6 +25,7 @@ Combine all learned concepts into a practical automation script and demonstrate 
 2.  **Re-use `inventory/hosts.yaml`, `inventory/groups.yaml`, `inventory/defaults.yaml` from Day 6 (or integrate if using exported inventory).**
 3.  **Re-use `templates/interface.j2` and `templates/bgp.j2` from Day 5/6.**
 4.  **`day10_full_workflow.py`:**
+
 ```python
 from nornir import InitNornir
 from nornir_scrapli.tasks import send_command, send_configs

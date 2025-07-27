@@ -13,12 +13,12 @@ name: netmiko_lab_day4
 
 topology:
     nodes:
-    - name: ceos1
-        kind: ceos
-        image: ceosimage:4.28.1F
-    - name: ceos2
-        kind: ceos
-        image: ceosimage:4.28.1F
+        ceos1: 
+            kind: arista_ceos
+            image: ceose:4.28.1F
+        ceos2
+            kind: arista_ceos
+            image: ceos:4.28.1F
 
     links:
     - endpoints: ["ceos1:eth1", "ceos2:eth1"]
