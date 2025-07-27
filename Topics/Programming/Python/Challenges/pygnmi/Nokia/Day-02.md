@@ -20,47 +20,54 @@ This script gets operational state of all interfaces.
 from pygnmi.client import gNMIclient
 import json
 
-SRL_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR SRL1 IP**
+SRL_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR SRL1 IP**
 GNMI_PORT = 57400
 USERNAME = "admin"
-PASSWORD = "admin"
+PASSWORD = "NokiaSrl1!"
 
 if __name__ == "__main__":
     with gNMIclient(
         target=(SRL_IP, GNMI_PORT),
         username=USERNAME,
         password=PASSWORD,
-        insecure=True
+        skip_verify=True,
     ) as gc:
         print(f"Connecting to {SRL_IP}:{GNMI_PORT} to get interface state...")
         try:
-            # OpenConfig path for all interfaces' state data
-            # SR Linux often exposes more granular data under specific interface paths.
-            # Let's get summary interface state.
-            path = ["/interfaces/interface/state"] # OpenConfig path
+            # Corrected path for SR Linux to get operational state of all interfaces
+            # The path /interface/oper-state correctly requests the oper-state of interfaces.
+            # The response structure, however, puts the list of interfaces under a specific key in 'val'.
+            path = ["/interface/oper-state"]
 
             result = gc.get(path=path, encoding="json_ietf", datatype="state")
             print("\n--- Interface Operational State ---")
 
-            if result and 'notification' in result and result['notification']:
+            # Debugging: Print the raw result to understand its structure
+            print(f"Raw gNMI result: {json.dumps(result, indent=2)}")
+
+            if result and isinstance(result, dict) and 'notification' in result and result['notification']:
                 for notification in result['notification']:
-                    if 'update' in notification:
+                    if 'update' in notification and notification['update']:
                         for update in notification['update']:
-                            # For json_ietf, 'val' contains the JSON data
-                            # The 'path' element can be quite verbose, let's simplify.
-                            if 'path' in update and 'val' in update:
-                                interface_name = None
-                                for elem in update['path']['elem']:
-                                    if 'key' in elem and 'name' in elem['key']:
-                                        interface_name = elem['key']['name']
-                                if interface_name:
-                                    print(f"Interface: {interface_name}")
-                                    print(json.dumps(update['val'], indent=2))
-                                else:
-                                    print(f"Path: {update['path']['elem']}")
-                                    print(json.dumps(update['val'], indent=2))
+                            # Check if 'val' exists and contains the expected interface data
+                            if 'val' in update and isinstance(update['val'], dict) and 'srl_nokia-interfaces:interface' in update['val']:
+                                interfaces_data = update['val']['srl_nokia-interfaces:interface']
+                                
+                                # The 'interfaces_data' is a list of dictionaries, each representing an interface.
+                                for interface in interfaces_data:
+                                    interface_name = interface.get('name')
+                                    oper_state = interface.get('oper-state')
+
+                                    if interface_name:
+                                        print(f"Interface: {interface_name}, Operational State: {oper_state}")
+                                    else:
+                                        print(f"Warning: Interface found without a 'name' key: {json.dumps(interface, indent=2)}")
+                            else:
+                                print(f"Warning: 'val' or 'srl_nokia-interfaces:interface' missing or malformed in update: {update}")
+                    else:
+                        print(f"Warning: 'update' key missing or empty in notification: {notification}")
             else:
-                print("No data received for interfaces.")
+                print("No valid data received for interfaces (or 'notification' key missing/empty).")
         except Exception as e:
             print(f"Error getting interfaces: {e}")
 
@@ -73,22 +80,22 @@ This script gets the system hostname.
 from pygnmi.client import gNMIclient
 import json
 
-SRL_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR SRL1 IP**
+SRL_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR SRL1 IP**
 GNMI_PORT = 57400
 USERNAME = "admin"
-PASSWORD = "admin"
+PASSWORD = "NokiaSrl1!"
 
 if __name__ == "__main__":
     with gNMIclient(
         target=(SRL_IP, GNMI_PORT),
         username=USERNAME,
         password=PASSWORD,
-        insecure=True
+         skip_verify=True,
     ) as gc:
         print(f"Connecting to {SRL_IP}:{GNMI_PORT} to get system hostname...")
         try:
             # OpenConfig path for system hostname (config and state)
-            path = ["/system/state/hostname"] # OpenConfig path
+            path = ["/system/name/host-name"] # OpenConfig path
             result = gc.get(path=path, encoding="json_ietf", datatype="state")
             print("\n--- System Hostname ---")
             if result and 'notification' in result and result['notification']:

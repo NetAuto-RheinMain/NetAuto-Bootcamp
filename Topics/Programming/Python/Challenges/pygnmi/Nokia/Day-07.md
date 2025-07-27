@@ -13,13 +13,13 @@ name: day7_srl_gnmi_full_lab
 topology:
   nodes:
     srl1:
-      kind: srlinux
+      kind: nokia_srlinux
       image: ghcr.io/nokia/srlinux:latest
     srl2:
-      kind: srlinux
+      kind: nokia_srlinux
       image: ghcr.io/nokia/srlinux:latest
     srl3:
-      kind: srlinux
+      kind: nokia_srlinux
       image: ghcr.io/nokia/srlinux:latest
   links:
     - endpoints: ["srl1:e1-1", "srl2:e1-1"]

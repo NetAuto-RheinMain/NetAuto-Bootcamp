@@ -16,7 +16,7 @@ name: day5_srl_gnmi_lab
 topology:
   nodes:
     srl1:
-      kind: srlinux
+      kind: nokia_srlinux
       image: ghcr.io/nokia/srlinux:latest
       # No special configuration needed for subscribe, as gNMI is enabled by default.
 ```
@@ -31,37 +31,30 @@ from pygnmi.client import gNMIclient
 import json
 import time
 
-SRL_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR SRL1 IP**
+SRL_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR SRL1 IP**
 GNMI_PORT = 57400
 USERNAME = "admin"
-PASSWORD = "admin"
+PASSWORD = "NokiaSrl1!"
 
 if __name__ == "__main__":
     with gNMIclient(
         target=(SRL_IP, GNMI_PORT),
         username=USERNAME,
         password=PASSWORD,
-        insecure=True
+        skip_verify=True,
     ) as gc:
         print(f"Connecting to {SRL_IP}:{GNMI_PORT} to subscribe to interface counters (STREAM)...")
         try:
-            # OpenConfig path for interface statistics (counters).
-            # For SR Linux, you might find more comprehensive data using native paths.
-            # Example OpenConfig path for a specific interface's statistics:
-            # path = ["/interfaces/interface[name=ethernet-1/1]/state/statistics"]
-
-            # Let's use a native SR Linux path for more comprehensive counters
-            # or try openconfig path for all interfaces' state/statistics.
-            # SR Linux usually provides counters under /state/statistics.
-            path = ["/interfaces/interface/state/statistics"] # OpenConfig path
-            # Alternatively, native SR Linux path example:
-            # path = ["srl_nokia-interfaces:interface[name=ethernet-1/1]/statistics"]
+            # Using OpenConfig path for all interface statistics
+            # SR Linux usually provides counters under /interface/state/statistics or directly /interface/statistics
+            # Let's try /interface/statistics first, expecting it might return aggregated data in 'val'
+            path = ["/interface[name=ethernet-1/1]]/statistics"] # OpenConfig path
 
             subscription_params = {
                 "subscription": [
                     {
                         "path": path[0],
-                        "mode": "STREAM",
+                        "mode": "sample",
                         "sample_interval": 1000000000 # 1 second in nanoseconds
                     }
                 ]
@@ -69,30 +62,57 @@ if __name__ == "__main__":
 
             print("Subscribing to interface counters. Press Ctrl+C to stop.")
             for response in gc.subscribe2(subscribe=subscription_params):
-                if 'update' in response:
+                # print(f"Raw subscribe response: {json.dumps(response, indent=2)}") # Uncomment for detailed debugging
+
+                if 'update' in response and isinstance(response['update'], list): # Ensure 'update' is a list
                     print(f"\n--- Update received at {time.time()} ---")
-                    for update_data in response['update']['update']:
-                        if 'path' in update_data and 'val' in update_data:
+                    for update_data in response['update']: # Corrected: direct iteration over response['update']
+                        if 'path' in update_data and update_data['path'] is not None and 'elem' in update_data['path']:
+                            # Case 1: Interface name is in the path structure
                             interface_name = None
                             for elem in update_data['path']['elem']:
                                 if 'key' in elem and 'name' in elem['key']:
                                     interface_name = elem['key']['name']
+                                    break # Found the name, exit inner loop
                             if interface_name:
                                 print(f"Interface: {interface_name} Counters:")
                                 print(json.dumps(update_data['val'], indent=2))
                             else:
-                                print(f"Path: {update_data['path']['elem']}")
+                                print(f"Path with no specific interface name key: {update_data['path']['elem']}")
                                 print(json.dumps(update_data['val'], indent=2))
+                        elif 'val' in update_data and isinstance(update_data['val'], dict):
+                            # Case 2: Path is null, interface data is aggregated in 'val'
+                            # This is the likely scenario for SR Linux with /interface/statistics
+                            if 'srl_nokia-interfaces:interface' in update_data['val']:
+                                interfaces_data = update_data['val']['srl_nokia-interfaces:interface']
+                                for interface in interfaces_data:
+                                    interface_name = interface.get('name')
+                                    # The 'statistics' might be nested further within the interface dictionary
+                                    statistics = interface.get('statistics')
+                                    if interface_name and statistics:
+                                        print(f"Interface: {interface_name} Counters:")
+                                        print(json.dumps(statistics, indent=2))
+                                    elif interface_name:
+                                        # If 'statistics' key is missing but name is present
+                                        print(f"Interface: {interface_name} (no statistics data found in val)")
+                                        print(json.dumps(interface, indent=2)) # Print whole interface dict
+                                    else:
+                                        print(f"Warning: Interface data in 'val' without 'name' key: {json.dumps(interface, indent=2)}")
+                            else:
+                                print(f"Warning: 'val' does not contain 'srl_nokia-interfaces:interface' key: {json.dumps(update_data['val'], indent=2)}")
+                        else:
+                            print(f"Warning: Neither path nor aggregated 'val' found in update_data: {update_data}")
                 elif 'sync_response' in response and response['sync_response']:
                     print("--- Initial synchronization complete ---")
                 elif 'error' in response:
-                    print(f"Error in subscription: {response['error']}")
+                    print(f"Error in subscription response: {response['error']}")
+                else:
+                    print(f"Unknown response type: {json.dumps(response, indent=2)}")
 
         except KeyboardInterrupt:
             print("\nSubscription stopped by user.")
         except Exception as e:
             print(f"Error during subscription: {e}")
-
 ```
 
 **How to generate traffic for testing:**

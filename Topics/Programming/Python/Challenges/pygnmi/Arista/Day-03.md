@@ -21,7 +21,7 @@ This script sets a description on `Ethernet1`.
 from pygnmi.client import gNMIclient
 import json
 
-CEOS_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
+CEOS_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
 GNMI_PORT = 6030
 USERNAME = "admin"
 PASSWORD = "admin"
@@ -36,19 +36,23 @@ if __name__ == "__main__":
         print(f"Connecting to {CEOS_IP}:{GNMI_PORT} to set interface description...")
         try:
             # Define the update operation
-            # OpenConfig path for interface configuration
+            # The 'update' argument expects a list of (path, value) tuples.
             update = [
-                {
-                    "path": "openconfig-interfaces:interfaces/interface[name=Ethernet1]/config/description",
-                    "value": "Configured by pygnmi Day 3 Tutorial"
-                }
+                (
+                    "/interfaces/interface[name=Ethernet1]/config/description",
+                    json.dumps("Configured by pygnmi Day 3 Tutorial") # This would become "\"Configured by...\""
+                )
             ]
+            # When using json_ietf, the 'value' in the tuple should be the Python object
+            # that pygnmi will then serialize to JSON.
+            # For a simple string, it's just the string.
+            # For more complex data, it would be a dict or list.
             response = gc.set(update=update, encoding="json_ietf")
             print("\n--- Set Operation Response ---")
             print(json.dumps(response, indent=2))
 
             # Verify the change by getting the description
-            path_verify = ["openconfig-interfaces:interfaces/interface[name=Ethernet1]/config/description"]
+            path_verify = ["/interfaces/interface[name=Ethernet1]/config/description"]
             result_verify = gc.get(path=path_verify, encoding="json_ietf", datatype="config")
             print("\n--- Verified Interface Description ---")
             if result_verify and 'notification' in result_verify and result_verify['notification']:
@@ -56,12 +60,13 @@ if __name__ == "__main__":
                     if 'update' in notification:
                         for item in notification['update']:
                             if 'path' in item and 'val' in item:
+                                # When datatype="config" and encoding="json_ietf",
+                                # 'val' is the Python object (string in this case)
                                 print(f"Ethernet1 Description: {item['val']}")
             else:
-                print("Failed to verify description.")
+                print("Failed to verify description or no update found.")
         except Exception as e:
             print(f"Error setting interface description: {e}")
-
 ```
 
 **2. `day3_set_hostname.py`**
@@ -71,7 +76,7 @@ This script sets the system hostname.
 from pygnmi.client import gNMIclient
 import json
 
-CEOS_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
+CEOS_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
 GNMI_PORT = 6030
 USERNAME = "admin"
 PASSWORD = "admin"
@@ -87,17 +92,17 @@ if __name__ == "__main__":
         try:
             # Define the update operation for hostname
             update = [
-                {
-                    "path": "openconfig-system:system/config/hostname",
-                    "value": "pygnmi-ceos-lab"
-                }
+                (
+                    "/system/config/hostname",
+                    json.dumps("pygnmi-ceos-lab")
+                )
             ]
             response = gc.set(update=update, encoding="json_ietf")
             print("\n--- Set Hostname Response ---")
             print(json.dumps(response, indent=2))
 
             # Verify the change
-            path_verify = ["openconfig-system:system/state/hostname"]
+            path_verify = ["/system/state/hostname"]
             result_verify = gc.get(path=path_verify, encoding="json_ietf", datatype="state")
             print("\n--- Verified Hostname ---")
             if result_verify and 'notification' in result_verify and result_verify['notification']:
@@ -111,7 +116,6 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"Error setting hostname: {e}")
-
 ```
 
 ### Challenge 3:

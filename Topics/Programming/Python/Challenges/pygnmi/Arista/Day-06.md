@@ -13,11 +13,11 @@ name: day6_gnmi_lab
 topology:
   nodes:
     ceos1:
-      kind: ceos
-      image: arista/ceos:latest
+      kind: arista_ceos
+      image: ceos:4.34.0F
     ceos2:
-      kind: ceos
-      image: arista/ceos:latest
+      kind: arista_ceos
+      image: ceos:4.34.0F
   links:
     - endpoints: ["ceos1:eth1", "ceos2:eth1"]
 ```
@@ -30,23 +30,25 @@ sudo containerlab deploy --topo day6_gnmi_lab.yaml
 
 **Configure IPs on `ceos1` and `ceos2` for `eth1` in CLI:**
 
-  * **ceos1 CLI**:
-    ```
-    enable
-    configure terminal
-    interface Ethernet1
-    no switchport
-    ip address 10.0.0.1/30
-    end
-    ```
-  * **ceos2 CLI**:
-    ```
-    enable
-    configure terminal
-    interface Ethernet1
-    no switchport
-    ip address 10.0.0.2/30
-    end
+* **ceos1 CLI**:
+  ```
+  ssh admin@<ceos1-containername> # password: admin
+  enable
+  configure terminal
+  interface Ethernet1
+  no switchport
+  ip address 10.0.0.1/30
+  end
+  ```
+* **ceos2 CLI**:
+  ```
+  ssh admin@<ceos2-containername> # password: admin
+  enable
+  configure terminal
+  interface Ethernet1
+  no switchport
+  ip address 10.0.0.2/30
+  end
     ```
 
 ### Code Examples:
@@ -58,8 +60,8 @@ This script attempts to configure an IP on `Ethernet2` on both `ceos1` and `ceos
 from pygnmi.client import gNMIclient
 import json
 
-CEOS1_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
-CEOS2_IP = "172.20.0.3" # **UPDATE THIS WITH YOUR CEOS2 IP**
+CEOS1_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
+CEOS2_IP = "172.20.20.3" # **UPDATE THIS WITH YOUR CEOS2 IP**
 GNMI_PORT = 6030
 USERNAME = "admin"
 PASSWORD = "admin"
@@ -71,40 +73,51 @@ DEVICES = {
 
 def configure_interface_ip(gc, device_name, interface_name, ip_address, prefix_length):
     print(f"\n--- Configuring {interface_name} on {device_name} with {ip_address}/{prefix_length} ---")
-    update_path = [
-        {
-            "path": f"openconfig-interfaces:interfaces/interface[name={interface_name}]/openconfig-interfaces:subinterfaces/subinterface[index=0]/openconfig-ip:ipv4/config/enabled",
-            "value": True
-        },
-        {
-            "path": f"openconfig-interfaces:interfaces/interface[name={interface_name}]/openconfig-interfaces:subinterfaces/subinterface[index=0]/openconfig-ip:ipv4/addresses/address[ip={ip_address}]/config/ip",
-            "value": ip_address
-        },
-        {
-            "path": f"openconfig-interfaces:interfaces/interface[name={interface_name}]/openconfig-interfaces:subinterfaces/subinterface[index=0]/openconfig-ip:ipv4/addresses/address[ip={ip_address}]/config/prefix-length",
-            "value": prefix_length
-        }
+
+    # To ensure the interface is a Layer 3 (routed) port, delete the 'switched-vlan' container.
+    delete_switchport = [
+        f"/interfaces/interface[name={interface_name}]/ethernet/switched-vlan"
     ]
-    # For Arista, also need to remove switchport mode and ensure interface is up
-    update_no_switchport = [
-        {
-            "path": f"openconfig-interfaces:interfaces/interface[name={interface_name}]/openconfig-if-ethernet:ethernet/config/switched-vlan/config/vlan-mode",
-            "value": "openconfig-if-ethernet:VLAN_MODE_UNSET" # This might be vendor specific, remove switchport or set mode
-        },
-         {
-            "path": f"openconfig-interfaces:interfaces/interface[name={interface_name}]/config/enabled",
-            "value": True
-        }
+
+    # Ensure the main interface is enabled
+    enable_interface = [
+        (
+            f"/interfaces/interface[name={interface_name}]/config/enabled",
+            True 
+        )
+    ]
+
+    update_path_ip = [
+        # 1. Enable IPv4 on the subinterface
+
+            f"/interfaces/interface[name={interface_name}]/subinterfaces/subinterface[index=0]/openconfig-if-ip:ipv4/config",
+            {"enabled": True} # Dict will be JSON-encoded by pygnmi
+        ),
+        # 2. Set IP address and prefix-length
+        (
+            f"/interfaces/interface[name={interface_name}]/subinterfaces/subinterface[index=0]/openconfig-if-ip:ipv4/addresses/address[ip={ip_address}]/config",
+            {"ip": ip_address, "prefix-length": prefix_length} # Dict will be JSON-encoded by pygnmi
+        )
     ]
 
     try:
-        # First try to set no switchport and enable
-        gc.set(update=update_no_switchport, encoding="json_ietf")
-        print(f"Set no switchport and enabled for {interface_name} on {device_name}.")
-        # Then set IP address
-        response = gc.set(update=update_path, encoding="json_ietf")
-        print(f"Configuration response: {json.dumps(response, indent=2)}")
-        print(f"Successfully configured {interface_name} on {device_name}.")
+        # 1. Delete the switched-vlan container (equivalent to 'no switchport')
+        print(f"Attempting to delete switched-vlan config for {interface_name} on {device_name}...")
+        response_delete_switchport = gc.set(delete=delete_switchport, encoding="json_ietf")
+        print(f"Delete switchport response: {json.dumps(response_delete_switchport, indent=2)}")
+        print(f"Successfully ensured {interface_name} is a routed port on {device_name}.")
+
+        # 2. Ensure the main interface is enabled
+        print(f"Attempting to enable {interface_name} on {device_name}...")
+        response_enable_interface = gc.set(update=enable_interface, encoding="json_ietf")
+        print(f"Enable interface response: {json.dumps(response_enable_interface, indent=2)}")
+        print(f"Successfully enabled {interface_name} on {device_name}.")
+
+        # 3. Configure the IP address and IPv4 enabled status
+        print(f"Attempting to configure IP address {ip_address}/{prefix_length} on {interface_name}.")
+        response_ip_config = gc.set(update=update_path_ip, encoding="json_ietf")
+        print(f"IP configuration response: {json.dumps(response_ip_config, indent=2)}")
+        print(f"Successfully configured IP on {interface_name} on {device_name}.")
         return True
     except Exception as e:
         print(f"Failed to configure {interface_name} on {device_name}: {e}")
@@ -112,7 +125,7 @@ def configure_interface_ip(gc, device_name, interface_name, ip_address, prefix_l
 
 def get_interface_oper_status(gc, device_name, interface_name):
     print(f"\n--- Getting operational status of {interface_name} on {device_name} ---")
-    path = [f"openconfig-interfaces:interfaces/interface[name={interface_name}]/state/oper-status"]
+    path = [f"/interfaces/interface[name={interface_name}]/state/oper-status"]
     try:
         result = gc.get(path=path, encoding="json_ietf", datatype="state")
         if result and 'notification' in result and result['notification']:
@@ -137,11 +150,9 @@ if __name__ == "__main__":
             password=PASSWORD,
             insecure=True
         ) as gc:
-            # Configure IP on Ethernet2 (example)
-            configure_interface_ip(gc, device_name, "Ethernet2", f"172.16.0.{1 if device_name == 'ceos1' else 2}", 24)
-            # Get operational status of Ethernet1 (link between ceos1 and ceos2)
+            ip_addr = f"172.16.0.{1 if device_name == 'ceos1' else 2}"
+            configure_interface_ip(gc, device_name, "Ethernet2", ip_addr, 24)
             get_interface_oper_status(gc, device_name, "Ethernet1")
-
 ```
 
 ### Challenge 6:
@@ -149,5 +160,4 @@ if __name__ == "__main__":
   * Using an Arista native gNMI path (e.g., something under `eos_native:/Smash/routing/status/route`), try to retrieve the routing table of `ceos1`.
   * Implement robust error handling in `day6_robust_config_and_status.py` to catch specific gRPC errors (e.g., `grpc.RpcError`) and provide more informative messages to the user.
   * Extend `day6_robust_config_and_status.py` to also configure an OSPF process on both `ceos1` and `ceos2` using `pygnmi` and OpenConfig paths (if supported by cEOS for OSPF config via gNMI). Verify the OSPF neighbor state.
-
 

@@ -24,7 +24,7 @@ This script gets operational state of all interfaces.
 from pygnmi.client import gNMIclient
 import json
 
-CEOS_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
+CEOS_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
 GNMI_PORT = 6030
 USERNAME = "admin"
 PASSWORD = "admin"
@@ -39,21 +39,43 @@ if __name__ == "__main__":
         print(f"Connecting to {CEOS_IP}:{GNMI_PORT} to get interface state...")
         try:
             # OpenConfig path for all interfaces' state data
-            path = ["openconfig-interfaces:interfaces/interface/state"]
+            path = ["/interfaces/interface/state"]
             result = gc.get(path=path, encoding="json_ietf", datatype="state")
             print("\n--- Interface Operational State ---")
-            # The result structure might vary slightly based on the device's gNMI implementation.
-            # We'll try to extract the 'updates' part which contains the data.
+
             if result and 'notification' in result and result['notification']:
                 for notification in result['notification']:
                     if 'update' in notification:
                         for update in notification['update']:
                             if 'path' in update and 'val' in update:
-                                # For json_ietf, 'val' contains the JSON data
-                                print(f"Path: {update['path']['elem']}")
+                                # 'path' contains the YANG path elements
+                                # 'val' contains the actual data as a dictionary (decoded JSON)
+
+                                # Reconstruct the path for display
+                                path_elements = []
+                                if 'elem' in update['path']:
+                                    for elem in update['path']['elem']:
+                                        segment = elem.get('name', '')
+                                        keys = elem.get('keys', {})
+                                        if keys:
+                                            key_str = ",".join(f"{k}={v}" for k, v in keys.items())
+                                            segment += f"[{key_str}]"
+                                        path_elements.append(segment)
+                                path_str = "/" + "/".join(path_elements)
+
+
+                                # The 'val' itself is the dictionary representing the data
+                                print(f"Path: {path_str}")
                                 print(json.dumps(update['val'], indent=2))
+                            else:
+                                print(f"Update missing 'path' or 'val': {update}")
+                    elif 'delete' in notification:
+                        # Handle delete notifications if they occur
+                        print(f"Deleted Path: {notification['delete']}")
+                if not any('update' in n or 'delete' in n for n in result['notification']):
+                     print("No updates or deletes in notification (possibly empty response).")
             else:
-                print("No data received for interfaces.")
+                print("No data received for interfaces or unexpected response format.")
         except Exception as e:
             print(f"Error getting interfaces: {e}")
 
@@ -66,7 +88,7 @@ This script gets the system hostname.
 from pygnmi.client import gNMIclient
 import json
 
-CEOS_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
+CEOS_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR CEOS1 IP**
 GNMI_PORT = 6030
 USERNAME = "admin"
 PASSWORD = "admin"
@@ -81,7 +103,7 @@ if __name__ == "__main__":
         print(f"Connecting to {CEOS_IP}:{GNMI_PORT} to get system hostname...")
         try:
             # OpenConfig path for system hostname (config and state)
-            path = ["openconfig-system:system/state/hostname"]
+            path = ["/system/state/hostname"]
             result = gc.get(path=path, encoding="json_ietf", datatype="state")
             print("\n--- System Hostname ---")
             if result and 'notification' in result and result['notification']:
@@ -95,7 +117,6 @@ if __name__ == "__main__":
                 print("No hostname data received.")
         except Exception as e:
             print(f"Error getting hostname: {e}")
-
 ```
 
 ### Challenge 2:

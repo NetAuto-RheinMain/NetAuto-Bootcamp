@@ -4,7 +4,7 @@
 
 Before starting, ensure you have the following set up:
 
-1.  **Python 3.8+**: Installed on your system.
+1.  **Python 3.9+**: Installed on your system.
 2.  **`pip`**: Python package installer.
 3.  **Docker**: Container runtime installed and running.
 4.  **Containerlab**: Installed on your Linux host. Refer to the official Containerlab documentation for installation: `https://containerlab.dev/install/`.
@@ -44,8 +44,8 @@ name: day1_gnmi_lab
 topology:
   nodes:
     ceos1:
-      kind: ceos
-      image: arista/ceos:latest # Or specify your downloaded version, e.g., arista/ceos:4.30.6M
+      kind: arista_ceos
+      image: ceos:4.34.0F # specify your downloaded version, e.g., arista/ceos:4.30.6M
       # Arista cEOS enables gNMI by default on port 6030 in the MGMT VRF
       # with admin/admin credentials.
 ```
@@ -81,10 +81,10 @@ import json
 # To get the IP:
 # 1. After `sudo containerlab deploy --topo day1_gnmi_lab.yaml`, run:
 #    `docker inspect day1_gnmi_lab-ceos1 | grep "IPAddress"`
-#    The IP will likely be in the 172.20.0.0/16 range or similar.
+#    The IP will likely be in the 172.20.20.0/24 range or similar.
 #    Alternatively, if `clab inspect` works for you, it can show node IPs.
 # ---
-CEOS_IP = "172.20.0.2" # Placeholder: **UPDATE THIS WITH YOUR CEOS1 IP**
+CEOS_IP = "172.20.20.2" # Placeholder: **UPDATE THIS WITH YOUR CEOS1 IP**
 GNMI_PORT = 6030
 USERNAME = "admin"
 PASSWORD = "admin" # Default password for Arista cEOS

@@ -17,17 +17,17 @@ This script deletes the description from `ethernet-1/1`.
 from pygnmi.client import gNMIclient
 import json
 
-SRL_IP = "172.20.0.2" # **UPDATE THIS WITH YOUR SRL1 IP**
+SRL_IP = "172.20.20.2" # **UPDATE THIS WITH YOUR SRL1 IP**
 GNMI_PORT = 57400
 USERNAME = "admin"
-PASSWORD = "admin"
+PASSWORD = "NokiaSrl1!"
 
 if __name__ == "__main__":
     with gNMIclient(
         target=(SRL_IP, GNMI_PORT),
         username=USERNAME,
         password=PASSWORD,
-        insecure=True
+        skip_verify=True,
     ) as gc:
         print(f"Connecting to {SRL_IP}:{GNMI_PORT} to delete interface description...")
         try:
@@ -35,14 +35,14 @@ if __name__ == "__main__":
             # You might want to run day3_srl_set_interface_description.py beforehand
 
             # Define the delete operation
-            delete_path = ["/interfaces/interface[name=ethernet-1/1]/config/description"]
+            delete_path = ["/interface[name=ethernet-1/1]/description"]
 
             response = gc.set(delete=delete_path, encoding="json_ietf")
             print("\n--- Delete Operation Response ---")
             print(json.dumps(response, indent=2))
 
             # Verify the deletion
-            path_verify = ["/interfaces/interface[name=ethernet-1/1]/config/description"]
+            path_verify = ["/interface[name=ethernet-1/1]/description"]
             result_verify = gc.get(path=path_verify, encoding="json_ietf", datatype="config")
             print("\n--- Verified Interface Description After Deletion ---")
             # If deleted, the path should ideally not return any data

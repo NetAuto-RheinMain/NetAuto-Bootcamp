@@ -4,7 +4,7 @@
 
 Before starting, ensure you have the following set up:
 
-1.  **Python 3.8+**: Installed on your system.
+1.  **Python 3.9+**: Installed on your system.
 2.  **`pip`**: Python package installer.
 3.  **Docker**: Container runtime installed and running.
 4.  **Containerlab**: Installed on your Linux host. Refer to the official Containerlab documentation for installation: `https://containerlab.dev/install/`.
@@ -44,7 +44,7 @@ name: day1_srl_gnmi_lab
 topology:
   nodes:
     srl1:
-      kind: srlinux
+      kind: nokia_srlinux
       image: ghcr.io/nokia/srlinux:latest # Or specify your desired version, e.g., :23.11.1
       # SR Linux enables gNMI by default on port 57400 in the default network instance
       # with admin/admin credentials.
@@ -70,12 +70,12 @@ import time
 # To get the IP of srl1:
 # 1. After `sudo containerlab deploy --topo day1_srl_gnmi_lab.yaml`, run:
 #    `docker inspect day1_srl_gnmi_lab-srl1 | grep "IPAddress"`
-#    The IP will likely be in the 172.20.0.0/16 range or similar.
+#    The IP will likely be in the 172.20.20.0/24 range or similar.
 # --- IMPORTANT: Replace with the actual IP of srl1 ---
-SRL_IP = "172.20.0.2" # Placeholder: **UPDATE THIS WITH YOUR SRL1 IP**
+SRL_IP = "172.20.20.2" # Placeholder: **UPDATE THIS WITH YOUR SRL1 IP**
 GNMI_PORT = 57400
 USERNAME = "admin"
-PASSWORD = "admin" # Default password for Nokia SR Linux
+PASSWORD = "NokiaSrl1!" # Default password for Nokia SR Linux
 
 if __name__ == "__main__":
     # Give SR Linux a moment to boot up and gNMI to become available
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         target=(SRL_IP, GNMI_PORT),
         username=USERNAME,
         password=PASSWORD,
-        insecure=True  # Use insecure for lab environments without proper TLS setup
+        skip_verify=True,  # Set to False if you want to verify the server's certificate
     ) as gc:
         print(f"Connecting to {SRL_IP}:{GNMI_PORT}...")
         try:
