@@ -1,4 +1,4 @@
-# Networking Bootcamp
+# Network Fundamnetals
 
 Welcome! This course is designed for absolute beginners who want structured daily learning with practical labs, step-by-step instructions, and real-world networking scenarios.
 
