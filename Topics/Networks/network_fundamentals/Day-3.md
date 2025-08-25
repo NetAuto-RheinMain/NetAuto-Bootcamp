@@ -23,8 +23,8 @@ There are 2 types of switches
 
 The terms Layer 2 and Layer 3 are taken from the OSI model. OSI or Open System Interconnect model is a reference model that describes and explains networks communications
 
-1. Layer 2 switch:_ Forwards packets on the basis of unique MAC addresses, Can quickly be deployed at a lower cost, Low latency and improved security
-2. Layer 3 switch: Offers IP address based packet forwarding (routing), nables a router of connecting different subnetworks, Utilize logical addressing to find optimum paths to destination hosts or networks
+1. Layer 2 switch: Forwards packets on the basis of unique MAC addresses, Can quickly be deployed at a lower cost, Low latency and improved security
+2. Layer 3 switch: Offers IP address based packet forwarding (routing), enables a router of connecting different subnetworks, Utilize logical addressing to find optimum paths to destination hosts or networks
 
 #### Lets get some hands on !
 
