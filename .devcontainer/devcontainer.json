@@ -1,0 +1,38 @@
+{
+    "name": "NetAuto Bootcamp Environment",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "moby": true,
+            "azureDnsAutoDetection": true,
+            "installDockerBuildx": true,
+            "version": "latest",
+            "dockerDashComposeVersion": "v2"
+        },
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11",
+            "installTools": true
+        }
+    },
+    "privileged": true,
+    
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "golang.go",
+                "ms-azuretools.vscode-docker",
+                "redhat.vscode-yaml",
+                "tcvn.containerlab-vscode-extension" 
+            ]
+        }
+    },
+
+    "postCreateCommand": "bash .devcontainer/setup.sh",
+
+    // User Einstellung
+    "remoteUser": "vscode"
+}
