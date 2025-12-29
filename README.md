@@ -41,6 +41,10 @@ We’re powered by great tools and inspired by awesome blogs:
 * **Tools:** [GitHub](https://github.com/), [Ansible](https://www.ansible.com/), [Terraform](https://www.terraform.io/), [OpenTofu](https://opentofu.org/), [GNS3](https://www.gns3.com/), [Cisco Packet Tracer](https://www.netacad.com/courses/packet-tracer), [NAPALM](https://napalm-automation.net/), [Paramiko](http://www.paramiko.org/), [Netmiko](https://pynet.twb-tech.com/blog/netmiko-python-library.html), [Containerlab](https://containerlab.dev/), [AWS](https://aws.amazon.com/), [Google Cloud Platform](https://cloud.google.com/), [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/), [VMware](https://www.vmware.com/), [Libvirt](https://libvirt.org/)
 * **Blogs & Resources:** [Florian Loehden](https://medium.com/@florian.loehden), [NetOps Chic](https://medium.com/@netopschic)
 
+## Learning Environment
+If you want to learn in an environment and maybe dobn't have the resources or things are not working on your machine, you can use `Github Codespace`! </br>
+Here we provided a guide on how to use it within our Bootcamp: [Codespace Usage Guide](./Topics/Usage_Codespace.md)
+
 ## Contribution
 
 We’re building this bootcamp together. Have a lab idea, improvement, or fix? Fork the repo, make your changes, and submit a pull request your contribution might be the key to helping the next engineer succeed.
