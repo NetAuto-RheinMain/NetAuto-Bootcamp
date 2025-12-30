@@ -91,7 +91,7 @@ File permissions are usually given as three octal digits (each from 0 to 7). The
 
 
 ## Challenge
-In [Challenge](/Topics/Linux/Challenges/readme.md) you can find the challenges for this topic.
+In [Challenge](./Challenges/readme.md) you can find the challenges for this topic.
 
 
 ## Sources and addtional resources
