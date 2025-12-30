@@ -6,8 +6,7 @@
 ## Cloud Services
 
 ### Public Cloud Services
-* [AWS](/AWS/readme.md)
-* [Azure](/Azure/readme.md)
+* [AWS](./AWS/readme.md)
 * [GCP](./GCP/readme.md)
 
 

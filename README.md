@@ -8,17 +8,17 @@ You won’t just learn concepts—you’ll apply them. Expect to design, configu
 
 ## Topics
 
-* [Linux](/Topics/Linux/readme.md) – Shell commands, process management, networking tools, and automation scripting.
-* [Version Control](/Topics/VersionControl/readme.md) – Git basics, branching strategies, and collaboration for automation projects.
-* [Networks](/Topics/Networks/readme.md) – Topologies, IP addressing, subnetting, and switching fundamentals.
-* [Protocols](/Topics/Protocols/readme.md) – VLANs, STP, OSPF, BGP, IPv4, and connectivity between networks.
-* [Programming](/Topics/Programming/readme.md) – Python and Go essentials for network engineers.
-* [Virtualization](/Topics/Virtualization/readme.md) – Creating and managing lab environments with hypervisors.
-* [Containerization](/Topics/Containerization/readme.md) – Deploying automation tools and services in Docker.
-* [Cloud](/Topics/Cloud/readme.md) – Cloud networking principles and automation workflows.
-* [Automation](/Topics/Automation/readme.md) – Config management with Ansible, infra provisioning with Terraform/OpenTofu.
-* [CI/CD](/Topics/CI/readme.md) – Building pipelines for testing and deploying network changes.
-* [Monitoring / Observability](/Topics/Monitoring/readme.md) – Using Prometheus, Grafana, and telemetry for network visibility.
+* [Linux](./Topics/Linux/readme.md) – Shell commands, process management, networking tools, and automation scripting.
+* [Version Control](./Topics/VersionControl/readme.md) – Git basics, branching strategies, and collaboration for automation projects.
+* [Networks](./Topics/Networks/readme.md) – Topologies, IP addressing, subnetting, and switching fundamentals.
+* [Protocols](./Topics/Protocols/readme.md) – VLANs, STP, OSPF, BGP, IPv4, and connectivity between networks.
+* [Programming](./Topics/Programming/readme.md) – Python and Go essentials for network engineers.
+* [Virtualization](./Topics/Virtualization/readme.md) – Creating and managing lab environments with hypervisors.
+* [Containerization](./Topics/Containerization/readme.md) – Deploying automation tools and services in Docker.
+* [Cloud](./Topics/Cloud/readme.md) – Cloud networking principles and automation workflows.
+* [Automation](./Topics/Automation/readme.md) – Config management with Ansible, infra provisioning with Terraform/OpenTofu.
+* [CI/CD](./Topics/CI/readme.md) – Building pipelines for testing and deploying network changes.
+* [Monitoring / Observability](./Topics/Monitoring/readme.md) – Using Prometheus, Grafana, and telemetry for network visibility.
 
 ---
 
