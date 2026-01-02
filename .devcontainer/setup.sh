@@ -7,7 +7,7 @@ echo "Install Containerlab..."
 bash -c "$(curl -sL https://get.containerlab.dev)"
 
 # 2. Pull SRLinux Image
-echo "Pulle Nokia SRLinux..."
+echo "Pulling Nokia SRLinux..."
 docker pull ghcr.io/nokia/srlinux:latest
 
 # 3. Install Python Requirements  (if there are any)
