@@ -1,11 +1,14 @@
 # Linux Challenges
 The Linux Challenges are divided in multiple Days.
-* [Day 1](/Topics/Linux/Challenges/Day-01/readme.md) is about handling file and writing to them 
-* [Day 2](/Topics/Linux/Challenges/Day-02/readme.md) is about environment variables and how to use them
-* [Day 3](/Topics/Linux/Challenges/Day-03/readme.md) is about getting data from web services and handling them
-* [Day 4](/Topics/Linux/Challenges/Day-04/readme.md) is about writing and executing shell scripts
-* [Day 5](/Topics/Linux/Challenges/Day-05/readme.md) is about building cronjobs
-* [Day 6](/Topics/Linux/Challenges/Day-06/readme.md) is about doing a final project in the Topic Linux
+
+| Day | Description |
+| ----- | ----- |
+| [Day 1](./Day-01/readme.md) | handling file and writing to them |
+| [Day 2](./Day-02/readme.md) | environment variables and how to use them|
+| [Day 3](./Day-03/readme.md) | getting data from web services and handling them|
+| [Day 4](./Day-04/readme.md) | writing and executing shell scripts|
+| [Day 5](./Day-05/readme.md) | building cronjobs|
+| [Day 6](./Day-06/readme.md) | doing a final project in the Topic Linux|
 
 ## Final ToDo
 
