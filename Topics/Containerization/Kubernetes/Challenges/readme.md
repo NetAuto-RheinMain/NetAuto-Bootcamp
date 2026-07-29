@@ -9,7 +9,7 @@ This tutorial is for developers, operations engineers, and anyone interested in 
   * A computer with internet access.
   * A text editor (VS Code, Sublime Text, etc.).
   * A stable internet connection.
-  * **Docker Desktop installed and running:** Kind uses Docker to run Kubernetes nodes.
+  * **Docker installed and running:** Kind uses Docker to run Kubernetes nodes.
   * **Kind CLI installed:** Follow official instructions (e.g., `go install sigs.k8s.io/kind@v0.22.0`).
   * **`kubectl` installed:** Follow official instructions (e.g., `brew install kubectl` on macOS).
   * **`helm` CLI installed:** (Will be covered in detail on Day 15).
